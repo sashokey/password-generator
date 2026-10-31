@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generate memorable passwords from 8 to 128 characters with whole words, connected scenes, and an expanded offline dictionary.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <title>Phrase — Memorable Password Generator</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23264132'/%3E%3Ctext x='18' y='47' fill='%23e1ee9e' font-family='Georgia' font-size='51'%3Ep%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#generator">Skip to generator</a>
+  <header class="site-header shell">
+    <a class="brand" href="#" aria-label="Phrase home"><span class="brand-mark" aria-hidden="true">p</span>phrase<span class="brand-dot">.</span></a>
+    <nav aria-label="Main navigation"><a href="#how-it-works">How it works <span aria-hidden="true">↗</span></a><span class="local-label"><span class="status-dot"></span> Runs on your device</span></nav>
+  </header>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow"><span class="small-star" aria-hidden="true">✳</span> THE MEMORABLE PASSWORD GENERATOR</p>
+      <h1 id="page-title">Easy to remember.<br><em>Hard to guess.</em></h1>
+      <p class="intro-copy">Real words. Memorable scenes. Your choice of length.<br class="desktop-break"> A password made for the way you remember.</p>
+    </section>
+
+    <section class="generator-card" id="generator" aria-label="Passphrase generator">
+      <div class="result-panel">
+        <div class="result-header"><span class="eyebrow">YOUR NEW PASSPHRASE</span><span class="strength-badge" id="strength-badge">Getting ready</span></div>
+        <div class="password-box">
+          <div id="password-display" class="password-display" role="textbox" aria-readonly="true" aria-multiline="true" aria-label="Generated passphrase" tabindex="0">Loading your passphrase…</div>
+          <button class="icon-button visibility-button" id="visibility-button" type="button" aria-label="Hide passphrase" aria-pressed="false" title="Hide passphrase" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18"/></svg></button>
+        </div>
+        <div class="result-meta"><span id="composition">Choosing short words</span><span><strong id="character-count">—</strong> characters</span></div>
+        <div class="action-row">
+          <button class="button button-primary" id="copy-button" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><span id="copy-label">Copy password</span></button>
+          <button class="button button-secondary" id="generate-button" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 3M4 15l2 3a7 7 0 0 0 12-1"/></svg>Generate new</button>
+        </div>
+        <p class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true">Generated here. Never stored or sent.</p>
+        <div class="strength-summary">
+          <div class="strength-topline"><span>Estimated entropy</span><span><strong id="entropy-value">—</strong> <span class="muted">bits</span></span></div>
+          <meter id="strength-meter" min="0" max="140" low="80" high="100" optimum="140" value="0" aria-label="Passphrase entropy in bits"></meter>
+          <p id="equivalence">Calculated from the number of possible combinations.</p>
+        </div>
+        <noscript><p class="error-message">Enable JavaScript to generate a passphrase securely on your device.</p></noscript>
+      </div>
+
+      <form id="settings-form" class="settings-panel" aria-labelledby="settings-title">
+        <div class="section-heading"><h2 id="settings-title">Make it yours</h2><span class="settings-icon" aria-hidden="true">⚙</span></div>
+        <fieldset class="preset-fieldset"><legend class="sr-only">Choose a character-length preset</legend><div class="presets">
+          <label class="preset"><input type="radio" name="preset" value="16"><span><strong>Compact</strong><small>16 characters</small></span></label>
+          <label class="preset"><input type="radio" name="preset" value="48"><span><strong>Medium</strong><small>48 characters</small></span></label>
+          <label class="preset"><input type="radio" name="preset" value="96" checked><span><strong>Long</strong><small>96 characters</small></span></label>
+        </div></fieldset>
+        <div class="select-row compact-row"><label for="account-protection">Account protection</label><select id="account-protection" aria-describedby="policy-note"><option value="password" selected>Password only · 15+</option><option value="mfa">Password + MFA · 8+</option></select></div>
+        <p class="policy-note" id="policy-note">15+ for password-only sign-in. Choose Password + MFA to allow 8–14.</p>
+        <div class="word-count-heading"><label for="password-length">Password length <span class="length-unit">characters</span></label><input id="password-length" name="length" type="number" min="15" max="128" step="1" value="96" inputmode="numeric" required aria-describedby="length-help policy-note"></div>
+        <input id="length-range" type="range" min="15" max="128" step="1" value="96" aria-label="Password length in characters" aria-describedby="length-help policy-note">
+        <div class="range-labels"><span id="range-min">15 · Shorter</span><span>Longer · 128</span></div>
+        <p class="length-help" id="length-help">Exact total, including separators, digits, and symbols. Words are never cut.</p>
+        <div class="select-row compact-row"><label for="phrase-style">Phrase style</label><select id="phrase-style"><option value="story" selected>Story phrase</option><option value="random">Random words</option><option value="characters">Random characters</option></select></div>
+        <div class="select-row compact-row"><label for="vocabulary">Vocabulary</label><select id="vocabulary"><option value="expanded" selected>Expanded · 64,586</option><option value="everyday">Familiar · 14,864</option></select></div>
+        <p class="dictionary-note" id="dictionary-note">18,942 words for connected scenes. 64,586 in the full library.</p>
+        <div class="select-row"><label for="separator">Word separator</label><select id="separator" name="separator"><option value="-">Hyphen ( - )</option><option value=".">Period ( . )</option><option value="_">Underscore ( _ )</option><option value=" ">Space</option></select></div>
+        <div class="toggle-list">
+          <label class="toggle-row"><span><strong id="uppercase-label">Random word initials</strong><small id="uppercase-help">Random upper/lower initials; at least one uppercase</small></span><input id="capitalize" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span><strong id="number-label">Add a number</strong><small id="number-help">00–99, at a random word boundary</small></span><input id="include-number" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span><strong id="symbol-label">Add a symbol</strong><small id="symbol-help">One of ! @ # $ % &amp; * ?, at a random boundary</small></span><input id="include-symbol" type="checkbox" role="switch" checked><span class="switch" aria-hidden="true"></span></label>
+        </div>
+        <p class="settings-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z"/><path d="m8 12 3 3 5-6"/></svg>Every change creates a fresh passphrase.</p>
+      </form>
+    </section>
+
+    <aside class="memory-note" aria-label="Memory tip"><span class="memory-icon" aria-hidden="true">✧</span><div><strong>A scene to keep in your head.</strong><p id="memory-sentence">A memory cue will appear with your password.</p></div><span class="memory-doodle" aria-hidden="true">a → b → ✧</span></aside>
+
+    <section class="how-section" id="how-it-works" aria-labelledby="how-title">
+      <div class="how-heading"><p class="eyebrow">A LITTLE MORE HUMAN</p><h2 id="how-title">Simple words. Serious randomness.</h2></div>
+      <div class="feature-grid">
+        <article><span class="feature-number">01 /</span><h3>More words. Better connections.</h3><p>Choose from a 64,586-word library. Story mode connects characters, actions, objects, and places using 18,942 words from relevant categories.</p></article>
+        <article><span class="feature-number">02 /</span><h3>Private by design</h3><p>Your browser creates the password on your device. No accounts, saved history, analytics, or network requests. Works offline.</p></article>
+        <article><span class="feature-number">03 /</span><h3>Length and strength are separate</h3><p>Use 15–128 characters for password-only sign-in, or 8–128 with MFA. Short word passwords can still be weak; Random characters provides more possibilities per character.</p></article>
+      </div>
+      <details class="technical-details"><summary>Security model and standards<span aria-hidden="true">+</span></summary><div class="details-body"><p>The length profiles implement the password-length guidance in <a href="https://pages.nist.gov/800-63-4/sp800-63b.html#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 §3.1.1.2</a>: 15+ characters for single-factor sign-in, or 8+ when a password is used with MFA. This is a length check, not a certification or a guarantee of password strength. MFA must actually be enabled on the account.</p><p>Randomness comes exclusively from Web Crypto. Generation requires HTTPS, localhost, or a trusted local file. If secure randomness fails, no password is produced. Passwords are not sent, saved, or logged by this app; copying puts the selected value on your system clipboard.</p><p>Word mode samples uniformly across valid phrases, number/symbol positions, and initial-letter cases for the chosen length. Whole words and their order are preserved. Character mode samples uniformly from the selected alphabet, conditioned on including each selected group at least once. These groups are your optional generation preferences, not mandatory account password rules.</p><p><code>search-space bits = log₂(number of possible generated outputs)</code></p><p>Fixed grammar words and separators add no randomness. Random layouts and case choices do. The displayed number is the size of the search space under the random-source assumption; it is not a certification of the browser's cryptographic strength or a cracking-time estimate. The 80-bit target is this app's advisory threshold, not a NIST requirement. The comparison uses 94 uniformly random printable non-space ASCII characters and rounds down.</p><p>Full authentication-system conformity also requires server-side compromised-password screening, throttling, secure password hashing, and other controls. This static generator cannot verify those controls, certify an AAL, or establish FIPS validation of your browser. See <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer">OWASP authentication guidance</a>.</p><p>Expanded vocabulary includes rare and technical terms. Familiar keeps EFF words and words with repeated occurrences in the WordNet tagged corpus. Story mode uses semantic categories and grammar templates; short lengths use descriptive pairs or single words.</p><p>Dictionary sources: <a href="https://wordnet.princeton.edu/" target="_blank" rel="noopener noreferrer">WordNet 3.0</a> and <a href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt" target="_blank" rel="noopener noreferrer">EFF Long Wordlist</a> by Joseph Bonneau / Electronic Frontier Foundation (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>). Alphabetic single-word entries selected; EFF hyphens and dice indices removed; duplicates merged; nouns grouped by their first listed sense. <a href="LICENSE-WORDNET.txt" target="_blank" rel="noopener">WordNet license</a>.</p></div></details>
+    </section>
+  </main>
+  <footer class="site-footer shell"><span class="footer-brand">phrase.</span><span>A little easier to remember. A lot more possibilities.</span><span class="footer-private"><span class="status-dot"></span> 100% on your device</span></footer>
+</body>
+</html>
