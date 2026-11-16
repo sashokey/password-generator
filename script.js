@@ -5,6 +5,7 @@
   const DICTIONARY_STATS = {"everyday":{"words":14864,"story":3770,"pools":{"all":14864,"actor":1384,"object":1918,"place":173,"actorAdjective":108,"objectAdjective":127,"placeAdjective":97,"verb":56,"adverb":30}},"expanded":{"words":64586,"story":18942,"pools":{"all":64586,"actor":8294,"object":9930,"place":428,"actorAdjective":108,"objectAdjective":127,"placeAdjective":97,"verb":56,"adverb":30}}};
   const SYMBOLS = Object.freeze(Array.from("!@#$%&*?"));
   const CHARACTER_SYMBOLS = Object.freeze(Array.from({ length: 94 }, (_, index) => String.fromCharCode(index + 33)).filter(char => !/[a-z0-9]/i.test(char)));
+  const PASSWORD_LENGTH = Object.freeze({ min: 8, max: 128, initial: 16 });
 
   class CryptoRandom {
     constructor(cryptoProvider, environment = () => ({ secure: globalThis.isSecureContext, protocol: globalThis.location?.protocol })) {
@@ -175,9 +176,8 @@
 
   class PassphrasePolicy {
     validate(options) {
-      if (!["password", "mfa"].includes(options.accountProtection)) throw new Error("Choose how this account is protected.");
-      const minimum = options.accountProtection === "mfa" ? 8 : 15;
-      if (!Number.isInteger(options.length) || options.length < minimum || options.length > 128) throw new RangeError(`Choose ${minimum}–128 characters. Lengths 8–14 require the Password + MFA profile.`);
+      const { min, max } = PASSWORD_LENGTH;
+      if (!Number.isInteger(options.length) || options.length < min || options.length > max) throw new RangeError(`Choose a whole number from ${min} to ${max}.`);
       if (!["-", ".", "_", " "].includes(options.separator)) throw new Error("Choose a supported word separator.");
       if (!["story", "random", "characters"].includes(options.style)) throw new Error("Choose a supported phrase style.");
       if (!["everyday", "expanded"].includes(options.vocabulary)) throw new Error("Choose a supported vocabulary.");
@@ -342,63 +342,54 @@
     constructor(documentProvider) {
       this.document = documentProvider;
       this.elements = Object.fromEntries([
-        "settings-form", "password-length", "length-range", "phrase-style", "vocabulary", "dictionary-note", "memory-sentence", "separator", "capitalize", "include-number", "include-symbol",
-        "password-display", "visibility-button", "copy-button", "copy-label", "generate-button", "composition", "character-count",
-        "entropy-value", "strength-meter", "strength-badge", "equivalence", "feedback", "account-protection", "policy-note", "range-min", "uppercase-label", "uppercase-help", "number-label", "number-help", "symbol-label", "symbol-help"
+        "settings-form", "password-length", "length-range", "phrase-style", "vocabulary", "memory-cue", "separator", "capitalize", "include-number", "include-symbol",
+        "password-display", "visibility-button", "copy-button", "copy-label", "generate-button",
+        "entropy-value", "strength-meter", "strength-badge", "feedback", "uppercase-label", "number-label", "symbol-label"
       ].map(id => [id, this.document.getElementById(id)]));
-      this.presets = [...this.document.querySelectorAll('input[name="preset"]')];
     }
 
     bind(handlers) {
-      this.elements["generate-button"].addEventListener("click", handlers.generate);
+      const length = this.elements["password-length"];
+      const range = this.elements["length-range"];
+      const { min, max, initial } = PASSWORD_LENGTH;
+      for (const input of [length, range]) {
+        input.min = min;
+        input.max = max;
+        input.defaultValue = initial;
+        input.valueAsNumber = initial;
+      }
+
+      this.elements["generate-button"].addEventListener("click", () => handlers.generate(true));
       this.elements["copy-button"].addEventListener("click", handlers.copy);
       this.elements["visibility-button"].addEventListener("click", handlers.toggleVisibility);
       this.elements["settings-form"].addEventListener("submit", event => event.preventDefault());
-      this.elements["length-range"].addEventListener("input", () => {
-        this.elements["password-length"].value = this.elements["length-range"].value;
-        this.syncControls();
+      range.addEventListener("input", () => {
+        length.value = range.value;
         handlers.generate();
       });
-      this.elements["password-length"].addEventListener("input", () => {
-        this.syncControls();
+      length.addEventListener("input", () => {
+        if (length.validity.valid) range.value = length.value;
         handlers.generate();
       });
       this.elements["settings-form"].addEventListener("change", event => {
-        if (["password-length", "length-range"].includes(event.target.id)) return;
-        if (event.target.name === "preset") this.elements["password-length"].value = event.target.value;
+        if (event.target === length || event.target === range) return;
         this.syncControls();
         handlers.generate();
       });
     }
 
     syncControls() {
-      const value = this.elements["password-length"].value;
-      const minimum = this.elements["account-protection"].value === "mfa" ? 8 : 15;
-      this.elements["password-length"].min = minimum;
-      this.elements["length-range"].min = minimum;
-      this.elements["range-min"].textContent = `${minimum} · Shorter`;
-      this.elements["policy-note"].textContent = minimum === 8 ? "8+ only when this account also uses MFA. Length alone does not establish strength." : "15+ for password-only sign-in. Choose Password + MFA to allow 8–14.";
-      if (Number(value) >= 8 && Number(value) <= 128) this.elements["length-range"].value = value;
-      this.presets.forEach(preset => { preset.checked = preset.value === value; });
-      const stats = DICTIONARY_STATS[this.elements.vocabulary.value];
-      const count = this.elements["phrase-style"].value === "story" ? stats.story : stats.words;
-      const format = number => number.toLocaleString("en-US");
       const characters = this.elements["phrase-style"].value === "characters";
       this.elements.vocabulary.disabled = characters;
       this.elements.separator.disabled = characters;
       this.elements["uppercase-label"].textContent = characters ? "Include uppercase" : "Random word initials";
-      this.elements["uppercase-help"].textContent = characters ? "A–Z; at least one uppercase letter" : "Random upper/lower initials; at least one uppercase";
       this.elements["number-label"].textContent = characters ? "Include digits" : "Add a number";
-      this.elements["number-help"].textContent = characters ? "0–9; at least one digit" : "00–99, at a random word boundary";
       this.elements["symbol-label"].textContent = characters ? "Include symbols" : "Add a symbol";
-      this.elements["symbol-help"].textContent = characters ? "32 ASCII symbols; at least one" : "One of ! @ # $ % & * ?, at a random boundary";
-      this.elements["dictionary-note"].textContent = characters ? "Uniform random characters. Selected character groups are included at least once; no fixed positions." : `${format(count)} words in this mode · ${format(DICTIONARY_STATS.expanded.words)} in the full library. ${this.elements.vocabulary.value === "expanded" ? "Includes rare and technical words." : "A more familiar selection."}`;
     }
 
     readOptions() {
       return {
-        length: Number(this.elements["password-length"].value),
-        accountProtection: this.elements["account-protection"].value,
+        length: this.elements["password-length"].valueAsNumber,
         style: this.elements["phrase-style"].value,
         vocabulary: this.elements.vocabulary.value,
         separator: this.elements.separator.value,
@@ -410,18 +401,12 @@
 
     render(result, estimate, hidden) {
       this.renderPassword(result, hidden);
-      const parts = [`${result.words.length} words`];
-      if (result.number) parts.push("2 digits");
-      if (result.symbol) parts.push("1 symbol");
-      this.elements.composition.textContent = result.kind === "characters" ? `${result.alphabetSize}-character alphabet · random positions` : parts.join(" + ");
-      this.elements["character-count"].textContent = String(result.value.length);
       this.elements["entropy-value"].textContent = estimate.bits.toFixed(1);
       this.elements["strength-meter"].max = Math.max(128, Math.ceil(estimate.bits / 32) * 32);
       this.elements["strength-meter"].value = estimate.bits;
       this.elements["strength-meter"].setAttribute("aria-valuetext", `${estimate.bits.toFixed(1)} bits of entropy`);
       this.elements["strength-badge"].textContent = estimate.label;
       this.elements["strength-badge"].dataset.level = estimate.level;
-      this.elements.equivalence.textContent = `At least the search space of ${estimate.equivalentLength} random characters from a 94-character alphabet.`;
       this.elements["copy-button"].disabled = false;
       this.elements["visibility-button"].disabled = false;
       this.elements["generate-button"].disabled = false;
@@ -429,13 +414,16 @@
 
     renderPassword(result, hidden) {
       const output = this.elements["password-display"];
+      const cue = this.elements["memory-cue"];
+      cue.hidden = hidden || result.options.style !== "story";
+      const scene = cue.hidden ? "" : result.words.join(" ").toLowerCase();
+      cue.textContent = scene ? scene[0].toUpperCase() + scene.slice(1) + "." : "";
       output.classList.remove("is-error");
       output.classList.toggle("is-hidden", hidden);
       output.replaceChildren();
       if (hidden) {
         output.textContent = "•••• •••• ••••";
         output.setAttribute("aria-label", "Passphrase hidden");
-        this.elements["memory-sentence"].textContent = "Your memory cue is hidden with your password.";
       } else {
         output.setAttribute("aria-label", "Generated passphrase");
         const append = (text, kind) => {
@@ -448,15 +436,6 @@
           append(token.value, token.kind);
           if (token.kind === "separator") output.append(this.document.createElement("wbr"));
         });
-        if (result.kind === "characters") {
-          this.elements["memory-sentence"].textContent = "Random characters maximize choices for a short length. Keep this password in a password manager.";
-        } else if (result.kind === "random") {
-          this.elements["memory-sentence"].textContent = "Picture the words in order as one unusual scene. Keep the random words; invent a story around them.";
-        } else {
-          const sentence = result.words.join(" ").toLowerCase();
-          const prefix = result.kind === "sentence" ? "Picture this: " : result.kind === "phrase" ? "Remember this image: " : "One word fits at this length: ";
-          this.elements["memory-sentence"].textContent = prefix + sentence[0].toUpperCase() + sentence.slice(1) + ".";
-        }
       }
       const button = this.elements["visibility-button"];
       const label = hidden ? "Show passphrase" : "Hide passphrase";
@@ -471,7 +450,7 @@
     }
 
     setCopyState(state) {
-      this.elements["copy-label"].textContent = state === "copied" ? "Copied!" : state === "pending" ? "Copying…" : "Copy password";
+      this.elements["copy-label"].textContent = state === "copied" ? "Copied" : state === "pending" ? "Copying…" : "Copy";
       this.elements["copy-button"].disabled = state === "pending";
     }
 
@@ -481,7 +460,7 @@
       this.elements["password-display"].classList.add("is-error");
       this.elements["password-display"].setAttribute("aria-label", "Passphrase unavailable");
       this.elements["copy-button"].disabled = true;
-      this.elements["copy-label"].textContent = "Copy password";
+      this.elements["copy-label"].textContent = "Copy";
       this.elements["visibility-button"].disabled = true;
       this.elements["generate-button"].disabled = false;
       this.elements["strength-badge"].textContent = "Unavailable";
@@ -489,10 +468,8 @@
       this.elements["strength-meter"].value = 0;
       this.elements["strength-meter"].setAttribute("aria-valuetext", "Unavailable");
       this.elements["entropy-value"].textContent = "—";
-      this.elements["character-count"].textContent = "—";
-      this.elements["memory-sentence"].textContent = "Choose a valid length to create a new memory cue.";
-      this.elements.composition.textContent = "No password generated";
-      this.elements.equivalence.textContent = "Secure generation must be available before you can use this tool.";
+      this.elements["memory-cue"].hidden = true;
+      this.elements["memory-cue"].textContent = "";
       this.setFeedback(message, "error");
     }
   }
@@ -511,15 +488,15 @@
 
     start() {
       this.view.bind({
-        generate: () => this.generate(),
+        generate: announce => this.generate(announce),
         copy: () => this.copy(),
         toggleVisibility: () => this.toggleVisibility()
       });
       this.view.syncControls();
-      this.generate(true);
+      this.generate();
     }
 
-    generate(initial = false) {
+    generate(announce = false) {
       clearTimeout(this.feedbackTimer);
       this.copyVersion += 1;
       this.view.setCopyState("idle");
@@ -527,10 +504,7 @@
         this.result = this.generator.generate(this.view.readOptions());
         const estimate = this.estimator.estimate(this.result);
         this.view.render(this.result, estimate, this.hidden);
-        const message = estimate.bits < 80
-          ? "Below the app's 80-bit target. Increase length or choose Random characters. This target is not a NIST requirement."
-          : initial ? "Generated here. Never stored or sent." : "New passphrase ready. Generated only on your device.";
-        this.view.setFeedback(message);
+        this.view.setFeedback(announce ? "Password generated." : "");
       } catch (error) {
         this.result = null;
         this.view.showError(error.message || "Secure generation failed. Please try again.");
@@ -541,7 +515,6 @@
       if (!this.result) return;
       this.hidden = !this.hidden;
       this.view.renderPassword(this.result, this.hidden);
-      this.view.setFeedback(this.hidden ? "Passphrase hidden. You can still copy it." : "Passphrase visible.");
     }
 
     async copy() {
@@ -554,10 +527,10 @@
         await this.clipboard.copy(value);
         if (version !== this.copyVersion) return;
         this.view.setCopyState("copied");
-        this.view.setFeedback("Copied to clipboard. Ready to paste.", "success");
+        this.view.setFeedback("Copied to clipboard.", "success");
         this.feedbackTimer = setTimeout(() => {
           this.view.setCopyState("idle");
-          this.view.setFeedback("Generated here. Never stored or sent.");
+          this.view.setFeedback("");
         }, 3500);
       } catch (error) {
         if (version !== this.copyVersion) return;
