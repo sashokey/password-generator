@@ -10,77 +10,45 @@
     <meta name="referrer" content="no-referrer" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; script-src 'sha256-InLHEV/DzJKnxsSFpXaELPQzNuWxX35UgXjhc6LOW6A='; style-src 'sha256-lWHe6gStI/P7xnGM0GNPOsZ4CYwLd5uYSVUfteBYwkM='; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+      content="default-src 'none'; script-src 'sha256-InLHEV/DzJKnxsSFpXaELPQzNuWxX35UgXjhc6LOW6A='; style-src 'sha256-4gPT8BvCUaP6VogfFxCALyncHQJIW7Ux071N2/ukyKo='; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
     />
     <title>Phrase — Memorable Password Generator</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233b3b3b'/%3E%3Ctext x='18' y='47' fill='%23e7e7e7' font-family='Georgia' font-size='51'%3Ep%3C/text%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23282828'/%3E%3Ctext x='18' y='47' fill='%23efefef' font-family='Georgia' font-size='51'%3Ep%3C/text%3E%3C/svg%3E"
     />
     <style>
       :root {
-        color-scheme: light;
-        --paper: #f7f7f7;
-        --surface: #fff;
-        --ink: #393939;
-        --muted: #5f5f5f;
-        --line: #e0e0e0;
-        --soft-surface: #f0f0f0;
-        --password-surface: #f7f7f7;
-        --focus: #7e7e7e;
-        --token-separator: #606060;
-        --token-number: #6d6d6d;
-        --token-symbol: #6c6c6c;
-        --strength-strong: #5c5c5c;
-        --strength-moderate: #575757;
-        --strength-moderate-surface: #f1f1f1;
-        --strength-weak: #595959;
-        --strength-weak-surface: #e9e9e9;
-        --meter-optimum: #777;
-        --meter-suboptimum: #888;
-        --meter-low: #929292;
+        color-scheme: dark;
+        --paper: #101010;
+        --surface: #111111;
+        --ink: #efefef;
+        --muted: #a0a0a0;
+        --line: #414141;
+        --soft-surface: #282828;
+        --hover-surface: #2a2a2a;
+        --password-surface: #131313;
+        --focus: #b7b7b7;
+        --token-separator: var(--muted);
+        --token-number: var(--focus);
+        --token-symbol: var(--focus);
+        --strength-strong: var(--ink);
+        --strength-moderate: var(--focus);
+        --strength-moderate-surface: #232323;
+        --strength-weak: var(--muted);
+        --strength-weak-surface: var(--password-surface);
+        --meter-optimum: var(--ink);
+        --meter-suboptimum: var(--muted);
+        --meter-low: #707070;
         --primary: var(--ink);
-        --primary-hover: #4e4e4e;
-        --primary-text: #fff;
-        --feedback-error: #5e5e5e;
-        --feedback-success: #626262;
-        --control-accent: #6c6c6c;
-        --switch-off: #cdcdcd;
-        --switch-on: #717171;
+        --primary-hover: #fff;
+        --primary-text: var(--paper);
+        --feedback-error: var(--ink);
+        --feedback-success: var(--focus);
+        --control-accent: var(--ink);
+        --switch-off: var(--line);
+        --switch-on: var(--muted);
         font-family: "Segoe UI", Arial, sans-serif;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          color-scheme: dark;
-          --paper: #191919;
-          --surface: #252525;
-          --ink: #e9e9e9;
-          --muted: #b7b7b7;
-          --line: #737373;
-          --soft-surface: #393939;
-          --password-surface: #2c2c2c;
-          --focus: #c2c2c2;
-          --token-separator: #bebebe;
-          --token-number: #cccccc;
-          --token-symbol: #bdbdbd;
-          --strength-strong: #d4d4d4;
-          --strength-moderate: #d4d4d4;
-          --strength-moderate-surface: #383838;
-          --strength-weak: #c9c9c9;
-          --strength-weak-surface: #343434;
-          --meter-optimum: #bebebe;
-          --meter-suboptimum: #a9a9a9;
-          --meter-low: #949494;
-          --primary: #d6d6d6;
-          --primary-hover: #e2e2e2;
-          --primary-text: #252525;
-          --feedback-error: #bebebe;
-          --feedback-success: #cacaca;
-          --control-accent: #c2c2c2;
-          --switch-off: #6f6f6f;
-          --switch-on: #7a7a7a;
-        }
       }
 
       * {
@@ -104,13 +72,15 @@
       .toggle-row {
         cursor: pointer;
       }
+      button:disabled,
+      select:disabled {
+        color: var(--muted);
+      }
       button:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
       }
       select:disabled {
         cursor: default;
-        opacity: 0.5;
       }
       a {
         color: inherit;
@@ -197,7 +167,7 @@
         background: transparent;
       }
       .icon-button:hover:not(:disabled) {
-        background: var(--soft-surface);
+        background: var(--hover-surface);
       }
       .icon-button svg {
         width: 22px;
@@ -279,7 +249,7 @@
         padding: 8px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: var(--surface);
+        background: var(--soft-surface);
         font-size: 13px;
         font-weight: 600;
       }
@@ -289,7 +259,7 @@
         flex: none;
       }
       .button:hover:not(:disabled) {
-        background: var(--paper);
+        background: var(--hover-surface);
       }
       .button-primary {
         background: var(--primary);
@@ -298,6 +268,10 @@
       }
       .button-primary:hover:not(:disabled) {
         background: var(--primary-hover);
+      }
+      .button-primary:disabled {
+        background: var(--soft-surface);
+        border-color: var(--line);
       }
       .feedback {
         margin: 0;
@@ -396,12 +370,13 @@
         top: 3px;
         left: 3px;
         border-radius: 50%;
-        background: #fff;
+        background: var(--ink);
       }
       .toggle-row input:checked + .switch {
         background: var(--switch-on);
       }
       .toggle-row input:checked + .switch::after {
+        background: var(--paper);
         transform: translateX(14px);
       }
       .toggle-row input:focus-visible + .switch {
