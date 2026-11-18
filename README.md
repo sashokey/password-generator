@@ -1,7 +1,7 @@
 # Technical notes
 
 - **Runtime:** ES2022, Web Crypto; HTTPS, localhost, or `file:`. No runtime dependencies. `crypto.getRandomValues()` plus rejection sampling provides unbiased integer draws; failures stop generation.
-- **Length:** 8–128 characters, default 16. [NIST SP 800-63B-4 §3.1.1.2](https://pages.nist.gov/800-63-4/sp800-63b.html#passwordver) sets a 15-character minimum for password verifiers with single-factor sign-in and allows a minimum of 8 with MFA.
+- **Length:** 8–128 characters, default 16. NIST SP 800-63B-4 §3.1.1.2 sets a 15-character minimum for password verifiers with single-factor sign-in and allows a minimum of 8 with MFA.
 - **Word sampling:** dynamic programming counts exact-length sequences; one uniform `BigInt` rank selects the sequence, layout, and case mask. For `n` words, both optional blocks yield `2n(2n+1)` layouts; randomized initials yield `2^n−1` masks. Number/symbol values add factors of 100/8.
 - **Character sampling:** uniform alphabet draws, rejecting strings missing a selected character group. Inclusion–exclusion counts accepted strings.
 - **Strength display:** `log2(possible outputs)`, assuming uniform secure draws. Fixed grammar/separators contribute zero bits. The 80-bit advisory threshold is app policy, not a NIST requirement or cryptographic validation.
