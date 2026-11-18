@@ -10,7 +10,7 @@
     <meta name="referrer" content="no-referrer" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; script-src 'sha256-InLHEV/DzJKnxsSFpXaELPQzNuWxX35UgXjhc6LOW6A='; style-src 'sha256-4gPT8BvCUaP6VogfFxCALyncHQJIW7Ux071N2/ukyKo='; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+      content="default-src 'none'; script-src 'sha256-InLHEV/DzJKnxsSFpXaELPQzNuWxX35UgXjhc6LOW6A='; style-src 'sha256-9j+w9SP7cyQDKl4QsOJvUEe3B1395wY2pYfevaJlr0M='; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
     />
     <title>Phrase — Memorable Password Generator</title>
     <link
@@ -67,7 +67,6 @@
       }
       button,
       select,
-      summary,
       input[type="range"],
       .toggle-row {
         cursor: pointer;
@@ -81,10 +80,6 @@
       }
       select:disabled {
         cursor: default;
-      }
-      a {
-        color: inherit;
-        text-underline-offset: 3px;
       }
       ::selection {
         background: var(--primary);
@@ -383,20 +378,6 @@
         outline: 3px solid var(--focus);
         outline-offset: 3px;
       }
-
-      .technical-details {
-        margin-top: 14px;
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.55;
-      }
-      .technical-details summary {
-        width: fit-content;
-        padding-block: 6px;
-      }
-      .technical-details p {
-        margin: 8px 0 0;
-      }
       .clipboard-helper {
         position: fixed;
         top: 0;
@@ -606,56 +587,6 @@
           </div>
         </form>
       </div>
-
-      <details class="technical-details">
-        <summary>Security and sources</summary>
-        <p>
-          Passwords are generated locally with Web Crypto. The app does not
-          store or transmit them. Copying places the password on your system
-          clipboard.
-        </p>
-        <p>
-          Estimated entropy is the base-2 logarithm of the number of possible
-          outputs. The app’s advisory target is 80 bits. For more entropy,
-          increase the length or choose Random characters.
-        </p>
-        <p>
-          <a
-            href="https://pages.nist.gov/800-63-4/sp800-63b.html#passwordver"
-            target="_blank"
-            rel="noopener noreferrer"
-            >NIST guidance for password verifiers</a
-          >
-          sets a 15-character minimum for password-only sign-in and allows a
-          minimum of 8 with MFA.
-        </p>
-        <p>
-          Dictionary sources:
-          <a
-            href="https://wordnet.princeton.edu/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >WordNet 3.0</a
-          >
-          (<a href="LICENSE-WORDNET.txt" target="_blank" rel="noopener"
-            >license</a
-          >) and the
-          <a
-            href="https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt"
-            target="_blank"
-            rel="noopener noreferrer"
-            >EFF Long Wordlist</a
-          >
-          by Joseph Bonneau / Electronic Frontier Foundation (<a
-            href="https://creativecommons.org/licenses/by/4.0/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >CC BY 4.0</a
-          >). Entries were filtered to single words, normalized, and
-          deduplicated. EFF hyphens and dice indices were removed. WordNet nouns
-          were grouped by first sense.
-        </p>
-      </details>
     </main>
     <script>
       (() => {
